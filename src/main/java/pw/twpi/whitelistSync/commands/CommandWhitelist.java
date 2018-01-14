@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import pw.twpi.whitelistSync.WhitelistSync;
+import pw.twpi.whitelistSync.service.BaseService;
 
 /**
  * @author PotatoSauceVFX <rj@potatosaucevfx.com>
@@ -38,7 +39,10 @@ public class CommandWhitelist implements ICommand {
 
     private final ArrayList aliases;
 
-    public CommandWhitelist() {
+    BaseService service;
+
+    public CommandWhitelist(BaseService service) {
+        this.service = service;
         aliases = new ArrayList();
         aliases.add("wl");
         aliases.add("whitelistsync");
@@ -65,7 +69,15 @@ public class CommandWhitelist implements ICommand {
         if (world.isRemote) {
             WhitelistSync.logger.error("I don't process on client-side!");
         } else {
-            /*
+            if (args.length > 0) {
+                if (args[0].equalsIgnoreCase("copyServerToDatabase")) {
+                    service.pushLocalToDatabase(server);
+                }
+            } else {
+                sender.sendMessage(new TextComponentString("/wl <list|add|remove|sync|copyServerToDatabase>"));
+            }
+        }
+        /*
             if (args.length > 0) {
                 //Action for showing list
                 if (args[0].equalsIgnoreCase("list")) {
@@ -130,8 +142,8 @@ public class CommandWhitelist implements ICommand {
             } else {
                 sender.sendMessage(new TextComponentString("/wl <list|add|remove|reloadConfig|sync|copyServerToDatabase>"));
             }
-             */
-        }
+         */
+
     }
 
     @Override

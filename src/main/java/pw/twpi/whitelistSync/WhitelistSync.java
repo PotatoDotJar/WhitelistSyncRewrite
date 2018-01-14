@@ -15,6 +15,7 @@
  */
 package pw.twpi.whitelistSync;
 
+import java.io.File;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -26,6 +27,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pw.twpi.whitelistSync.commands.CommandWhitelist;
+import pw.twpi.whitelistSync.service.BaseService;
+import pw.twpi.whitelistSync.service.MYSQLService;
+import pw.twpi.whitelistSync.service.SQLITEService;
+import pw.twpi.whitelistSync.util.ConfigErrorException;
+import pw.twpi.whitelistSync.util.ConfigHandler;
 
 /**
  * @author PotatoSauceVFX <rj@potatosaucevfx.com>
@@ -33,22 +39,27 @@ import pw.twpi.whitelistSync.commands.CommandWhitelist;
 @Mod(modid = WhitelistSync.MODID, version = WhitelistSync.VERSION, acceptableRemoteVersions = "*", serverSideOnly = true)
 public class WhitelistSync {
 
-    public static final String MODID = "whitelistSync";
+    public static final String MODID = "whitelistsync";
     public static final String VERSION = "1.0";
     public static String SERVER_FILEPATH;
     public static Configuration config;
+
+    // Database Service
+    BaseService service;
 
     public static final Logger logger = LogManager.getLogger(MODID);
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger.info("Hello Minecraft");
+        updateConfig(e);
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         logger.info("Hello again Minecraft");
-
+        logger.info("Setting up databases...");
+        loadDatabase();
     }
 
     @SideOnly(Side.SERVER)
@@ -59,7 +70,13 @@ public class WhitelistSync {
         logger.info("---------------WHITELIST SYNC---------------");
         logger.info("--------------------------------------------");
         logger.info("Loading Commands");
-        event.registerServerCommand(new CommandWhitelist());
+        event.registerServerCommand(new CommandWhitelist(service));
+
+        // Check if whitelisting is enabled.
+        if (!event.getServer().getPlayerList().isWhiteListEnabled()) {
+            logger.info("Oh no! I see whitelisting isn't enabled in the server properties. "
+                    + "Is this intentional?");
+        }
 
         logger.info("--------------------------------------------");
         logger.info("--------------------------------------------");
@@ -68,6 +85,27 @@ public class WhitelistSync {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
+        if (config.hasChanged()) {
+            config.save();
+        }
+    }
 
+    // Mothod for loading database
+    private void loadDatabase() {
+        if (ConfigHandler.WHITELIST_MODE.equalsIgnoreCase(ConfigHandler.MODE_SQLITE)) {
+            service = new SQLITEService();
+        } else if (ConfigHandler.WHITELIST_MODE.equalsIgnoreCase(ConfigHandler.MODE_MYSQL)) {
+            service = new MYSQLService();
+        } else {
+            throw new ConfigErrorException("Please check what WHITELIST_MODE is set in the config"
+                    + "and make sure it is set to a supported mode.");
+        }
+    }
+
+    // Method for loading config.
+    private void updateConfig(FMLPreInitializationEvent e) {
+        File directory = e.getModConfigurationDirectory();
+        config = new Configuration(new File(directory.getPath(), MODID + ".cfg"));
+        ConfigHandler.readConfig();
     }
 }

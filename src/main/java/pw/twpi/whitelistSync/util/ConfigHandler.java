@@ -26,17 +26,21 @@ import pw.twpi.whitelistSync.WhitelistSync;
 public class ConfigHandler {
 
     // Custom Categories
-    public final static String MYSQL_CATEGORY = "mySQL";
-    public final static String SQLITE_CATEGORY = "sqlite";
+    private final static String MYSQL_CATEGORY = "mySQL";
+    private final static String SQLITE_CATEGORY = "sqlite";
+
+    // Modes
+    public static final String MODE_MYSQL = "MYSQL";
+    public static final String MODE_SQLITE = "SQLITE";
 
     // General settings
-    public static String whitelistMode = "SQLITE";
+    public static String WHITELIST_MODE = "SQLITE"; // SQLITE or MYSQL, use mode finals above.
 
     // sqlite config
-    public static String databasePath = "./whitelist.db";
+    public static String sqliteDatabasePath = "./whitelist.db";
     public static String sqliteMode = "INTERVAL";
-    public static int serverSyncTimer = 60;
-    public static int serverListenerTimer = 10;
+    public static int sqliteServerSyncTimer = 60;
+    public static int sqliteServerListenerTimer = 10;
 
     // mySQL config
     public static String mySQL_IP = "localhost";
@@ -61,26 +65,26 @@ public class ConfigHandler {
     private static void initGeneralConfig(Configuration cfg) {
         // General Settings
         cfg.addCustomCategoryComment(CATEGORY_GENERAL, "General configuration");
-        whitelistMode = cfg.getString("Whitelist Sync Mode", CATEGORY_GENERAL, whitelistMode,
-                "Mode for the database. Options are [MYSQL or SQLITE]. Default is SQLITE!");
+        WHITELIST_MODE = cfg.getString("Whitelist Sync Mode", CATEGORY_GENERAL, MODE_SQLITE,
+                "Mode for the database. Options are [MYSQL or SQLITE].");
 
         // Sqlite settings
         cfg.addCustomCategoryComment(SQLITE_CATEGORY, "Sqlite configuration (To enable "
                 + "Sqlitee, refer to the mode setting in the general configuration).");
-        databasePath = cfg.getString("Database Path", SQLITE_CATEGORY,
-                databasePath, "Insert System Path for your Sqlite database file. "
+        sqliteDatabasePath = cfg.getString("Database Path", SQLITE_CATEGORY,
+                sqliteDatabasePath, "Insert System Path for your Sqlite database file. "
                 + "This will be the same for all your servers you want to sync!");
 
         sqliteMode = cfg.getString("Sqlite Sync Mode", SQLITE_CATEGORY, sqliteMode,
                 "Mode for how the database updates."
                 + " INTERVAL = Update Time Interval, LISTENER = Database Update Listener (Please let me know if there are problems).");
 
-        serverSyncTimer = cfg.getInt("Sync Timer", SQLITE_CATEGORY,
-                serverSyncTimer, 5, 1000, "Time Interval in seconds for when the server polls "
+        sqliteServerSyncTimer = cfg.getInt("Sync Timer", SQLITE_CATEGORY,
+                sqliteServerSyncTimer, 5, 1000, "Time Interval in seconds for when the server polls "
                 + "the whitelist changes from the database. (Only used in Interval Sqlite Mode!)");
 
-        serverListenerTimer = cfg.getInt("Server Listener Sync Time",
-                SQLITE_CATEGORY, serverListenerTimer, 1, 1000,
+        sqliteServerListenerTimer = cfg.getInt("Server Listener Sync Time",
+                SQLITE_CATEGORY, sqliteServerListenerTimer, 1, 1000,
                 "Time Interval in seconds for when the server checks for"
                 + " database changes (Only used in Database Update "
                 + "Sqlite Mode!)");

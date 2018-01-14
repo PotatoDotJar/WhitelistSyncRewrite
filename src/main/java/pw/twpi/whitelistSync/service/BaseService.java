@@ -24,9 +24,6 @@ import net.minecraft.server.MinecraftServer;
  */
 public interface BaseService {
 
-    // Loads database or creates new one if it doesn't exist.
-    public Boolean loadDatabase();
-
     // Merges database with local whitelist.
     public void pushLocalToDatabase(MinecraftServer server);
 

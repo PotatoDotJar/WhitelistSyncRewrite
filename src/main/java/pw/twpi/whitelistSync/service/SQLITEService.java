@@ -38,11 +38,13 @@ public class SQLITEService implements BaseService {
     private Connection conn = null;
 
     public SQLITEService() {
-        this.databaseFile = new File(ConfigHandler.databasePath);
+        WhitelistSync.logger.info("Settign up the SQLITE service...");
+        this.databaseFile = new File(ConfigHandler.sqliteDatabasePath);
+        loadDatabase();
+        WhitelistSync.logger.info("SQLITE service loaded!");
     }
 
-    @Override
-    public Boolean loadDatabase() {
+    private Boolean loadDatabase() {
         // If database does not exist.
         if (!databaseFile.exists()) {
             createNewDatabase();
@@ -50,7 +52,7 @@ public class SQLITEService implements BaseService {
 
         // Create whitelist table if it doesn't exist.
         try {
-            conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+            conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
             WhitelistSync.logger.info("Connected to SQLite database successfully!");
 
             // SQL statement for creating a new table
@@ -93,7 +95,7 @@ public class SQLITEService implements BaseService {
                 try {
 
                     // Connect to database.
-                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
                     Statement stmt = conn.createStatement();
                     long startTime = System.currentTimeMillis();
 
@@ -129,7 +131,7 @@ public class SQLITEService implements BaseService {
             int records = 0;
 
             // Connect to database.
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
             Statement stmt = conn.createStatement();
             String sql = "SELECT uuid, whitelisted FROM whitelist;";
 
@@ -172,7 +174,7 @@ public class SQLITEService implements BaseService {
             int records = 0;
 
             // Connect to database.
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
             Statement stmt = conn.createStatement();
             String sql = "SELECT name, whitelisted FROM whitelist;";
 
@@ -211,7 +213,7 @@ public class SQLITEService implements BaseService {
             public void run() {
                 try {
                     // Open connection
-                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
                     Statement stmt = conn.createStatement();
                     String sql = "INSERT OR REPLACE INTO whitelist(uuid, name, whitelisted) VALUES (\'" + player.getId() + "\', \'" + player.getName() + "\', 1);";
 
@@ -242,7 +244,7 @@ public class SQLITEService implements BaseService {
             public void run() {
                 try {
                     // Open connection
-                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
                     Statement stmt = conn.createStatement();
                     String sql = "INSERT OR REPLACE INTO whitelist(uuid, name, whitelisted) VALUES (\'" + player.getId() + "\', \'" + player.getName() + "\', 0);";
 
@@ -273,7 +275,7 @@ public class SQLITEService implements BaseService {
             public void run() {
                 try {
                     int records = 0;
-                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.databasePath);
+                    Connection conn = DriverManager.getConnection("jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath);
                     Statement stmt = conn.createStatement();
                     String sql = "SELECT name, uuid, whitelisted FROM whitelist;";
 
@@ -321,11 +323,11 @@ public class SQLITEService implements BaseService {
     }
 
     private void createNewDatabase() {
-        String url = "jdbc:sqlite:" + ConfigHandler.databasePath;
+        String url = "jdbc:sqlite:" + ConfigHandler.sqliteDatabasePath;
         try {
             Connection conn = DriverManager.getConnection(url);
             if (conn != null) {
-                WhitelistSync.logger.info("A new database \"" + ConfigHandler.databasePath + "\" has been created.");
+                WhitelistSync.logger.info("A new database \"" + ConfigHandler.sqliteDatabasePath + "\" has been created.");
             }
         } catch (SQLException e) {
             WhitelistSync.logger.error("Error creating non-existing database!\n" + e.getMessage());
