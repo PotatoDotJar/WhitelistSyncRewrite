@@ -34,6 +34,7 @@ import pw.twpi.whitelistSync.util.WhitelistRead;
  */
 public class SQLITEService implements BaseService {
 
+    // TODO: Prepared statements.
     private File databaseFile;
     private Connection conn = null;
 

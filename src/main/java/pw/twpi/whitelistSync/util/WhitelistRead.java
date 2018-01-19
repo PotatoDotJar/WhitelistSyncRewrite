@@ -37,7 +37,7 @@ public class WhitelistRead {
     public static ArrayList getWhitelistUUIDs() {
         ArrayList<String> uuids = new ArrayList<String>();
         // OMG ITS A LAMBDA EXPRESSION!!! :D
-        getWhitelistJson().forEach(emp -> parseToList((JsonObject) emp, uuids, "uuid"));
+        getWhitelistJson().forEach(emp -> parseToList(emp.getAsJsonObject(), uuids, "uuid"));
         return uuids;
     }
 
@@ -45,7 +45,7 @@ public class WhitelistRead {
     public static ArrayList getWhitelistNames() {
         ArrayList<String> names = new ArrayList<String>();
         // WOAH ITS A LAMBDA EXPRESSION!!! CRAZY COMPLEX STUFF GOIN ON RIGHT HERE!!! :D
-        getWhitelistJson().forEach(emp -> parseToList((JsonObject) emp, names, "name"));
+        getWhitelistJson().forEach(emp -> parseToList(emp.getAsJsonObject(), names, "name"));
         return names;
     }
 
@@ -62,7 +62,7 @@ public class WhitelistRead {
     }
 
     private static void parseToList(JsonObject whitelist, List list, String key) {
-        list.add(whitelist.get(key));
+        list.add(whitelist.get(key).getAsString());
     }
 
     private static JsonArray getWhitelistJson() {
@@ -74,7 +74,7 @@ public class WhitelistRead {
         } catch (JsonParseException e) {
             WhitelistSync.logger.error("Whitelist.json parse error!! D:\n" + e.getMessage());
         }
-        WhitelistSync.logger.debug("getWhitelistJson returned an array or " + whitelist.size() + " entries.");
+        WhitelistSync.logger.debug("getWhitelistJson returned an array of " + whitelist.size() + " entries.");
         return whitelist;
     }
 

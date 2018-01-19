@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import pw.twpi.whitelistSync.WhitelistSync;
 import pw.twpi.whitelistSync.service.BaseService;
+import pw.twpi.whitelistSync.util.ConfigHandler;
 
 /**
  * @author PotatoSauceVFX <rj@potatosaucevfx.com>
@@ -70,80 +71,49 @@ public class CommandWhitelist implements ICommand {
             WhitelistSync.logger.error("I don't process on client-side!");
         } else {
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("copyServerToDatabase")) {
-                    service.pushLocalToDatabase(server);
+                if (args.length > 0) {
+                    //Action for showing list
+                    if (args[0].equalsIgnoreCase("list")) {
+                        service.pullNamesFromDatabase(server).forEach(user -> sender.sendMessage(new TextComponentString(user.toString()))); // TODO: Format output in table and add feedback.
+
+                    } // Actions for adding a player to whitelist
+                    else if (args[0].equalsIgnoreCase("add")) {
+                        if (args.length > 1) {
+                            server.getPlayerList().addWhitelistedPlayer(server.getPlayerProfileCache().getGameProfileForUsername(args[1]));
+                            service.addPlayerToDatabase(server.getPlayerProfileCache().getGameProfileForUsername(args[1]));
+                            sender.sendMessage(new TextComponentString(args[1] + " added to the whitelist."));
+                        } else {
+                            sender.sendMessage(new TextComponentString("You must specify a name to add to the whitelist!"));
+                        }
+                    } // Actions for removing player from whitelist
+                    else if (args[0].equalsIgnoreCase("remove")) {
+                        if (args.length > 1) {
+                            GameProfile gameprofile = server.getPlayerList().getWhitelistedPlayers().getByName(args[1]);
+                            if (gameprofile != null) {
+                                server.getPlayerList().removePlayerFromWhitelist(gameprofile);
+                                service.removePlayerFromDatabase(gameprofile);
+                                sender.sendMessage(new TextComponentString(args[1] + " removed from the whitelist."));
+                            } else {
+                                sender.sendMessage(new TextComponentString("You must specify a valid name to remove from the whitelist!"));
+                            }
+                        }
+                    } // Reloads the config
+                    else if (args[0].equalsIgnoreCase("reloadConfig")) {
+                        ConfigHandler.readConfig();
+                    } // Sync Database to server
+                    else if (args[0].equalsIgnoreCase("sync")) {
+                        service.updateLocalFromDatabase(server); // TODO: Add feedback
+                    } // Sync server to database
+                    else if (args[0].equalsIgnoreCase("copyservertodatabase")) {
+                        service.pushLocalToDatabase(server); // TODO: Add feedback
+                    }
+                } else {
+                    sender.sendMessage(new TextComponentString("/wl <list|add|remove|sync|copyServerToDatabase>"));
                 }
             } else {
                 sender.sendMessage(new TextComponentString("/wl <list|add|remove|sync|copyServerToDatabase>"));
             }
         }
-        /*
-            if (args.length > 0) {
-                //Action for showing list
-                if (args[0].equalsIgnoreCase("list")) {
-                    if (ConfigHandler.whitelistMode.equalsIgnoreCase("SQLITE")) {
-                        core.sQliteService.pullNamesFromDatabase(server).forEach(user -> sender.sendMessage(new TextComponentString(user.toString())));
-                    } else if (ConfigHandler.whitelistMode.equalsIgnoreCase("MYSQL")) {
-                        // TODO: MYSQL
-                    }
-
-                } // Actions for adding a player to whitelist
-                else if (args[0].equalsIgnoreCase("add")) {
-                    if (args.length > 1) {
-                        server.getPlayerList().addWhitelistedPlayer(server.getPlayerProfileCache().getGameProfileForUsername(args[1]));
-                        if (ConfigHandler.whitelistMode.equalsIgnoreCase("SQLITE")) {
-                            core.sQliteService.addPlayertoDataBase(server.getPlayerProfileCache().getGameProfileForUsername(args[1]));
-                        } else if (ConfigHandler.whitelistMode.equalsIgnoreCase("MYSQL")) {
-                            // TODO: MYSQL
-                        }
-                        sender.sendMessage(new TextComponentString(args[1] + " added to the whitelist."));
-                    } else {
-                        sender.sendMessage(new TextComponentString("You must specify a name to add to the whitelist!"));
-                    }
-                } // Actions for removing player from whitelist
-                else if (args[0].equalsIgnoreCase("remove")) {
-                    if (args.length > 1) {
-                        GameProfile gameprofile = server.getPlayerList().getWhitelistedPlayers().getByName(args[1]);
-                        if (gameprofile != null) {
-                            server.getPlayerList().removePlayerFromWhitelist(gameprofile);
-
-                            if (ConfigHandler.whitelistMode.equalsIgnoreCase("SQLITE")) {
-                                core.sQliteService.removePlayerFromDataBase(gameprofile);
-                            } else if (ConfigHandler.whitelistMode.equalsIgnoreCase("MYSQL")) {
-                                // TODO: MYSQL
-                            }
-
-                            sender.sendMessage(new TextComponentString(args[1] + " removed from the whitelist."));
-
-                        } else {
-                            sender.sendMessage(new TextComponentString("You must specify a valid name to remove from the whitelist!"));
-                        }
-                    }
-                } // Reloads the config
-                else if (args[0].equalsIgnoreCase("reloadConfig")) {
-                    ConfigHandler.readConfig();
-                } // Sync Database to server
-                else if (args[0].equalsIgnoreCase("sync")) {
-                    if (ConfigHandler.whitelistMode.equalsIgnoreCase("SQLITE")) {
-                        core.sQliteService.updateLocalWithDatabase(server);
-                    } else if (ConfigHandler.whitelistMode.equalsIgnoreCase("MYSQL")) {
-                        // TODO: MYSQL
-                    }
-                } // Sync server to database
-                else if (args[0].equalsIgnoreCase("copyservertodatabase")) {
-
-                    if (ConfigHandler.whitelistMode.equalsIgnoreCase("SQLITE")) {
-                        core.sQliteService.pushLocalToDatabase(server);
-                    } else if (ConfigHandler.whitelistMode.equalsIgnoreCase("MYSQL")) {
-                        // TODO: MYSQL
-                    }
-
-                }
-            } else {
-                sender.sendMessage(new TextComponentString("/wl <list|add|remove|reloadConfig|sync|copyServerToDatabase>"));
-            }
-         */
-
     }
 
     @Override
@@ -166,11 +136,11 @@ public class CommandWhitelist implements ICommand {
             return CommandBase.getListOfStringsMatchingLastWord(args, "list", "add", "remove", "reloadConfig", "sync", "copyServerToDatabase");
         } else {
             if (args.length == 2) {
-                if ("remove".equals(args[0])) {
+                if (args[0].equals("remove")) {
                     return CommandBase.getListOfStringsMatchingLastWord(args, server.getPlayerList().getWhitelistedPlayerNames());
                 }
 
-                if ("add".equals(args[0])) {
+                if (args[0].equals("add")) {
                     return CommandBase.getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames());
                 }
             }

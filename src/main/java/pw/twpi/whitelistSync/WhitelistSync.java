@@ -16,6 +16,7 @@
 package pw.twpi.whitelistSync;
 
 import java.io.File;
+import java.util.ArrayList;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -32,6 +33,7 @@ import pw.twpi.whitelistSync.service.MYSQLService;
 import pw.twpi.whitelistSync.service.SQLITEService;
 import pw.twpi.whitelistSync.util.ConfigErrorException;
 import pw.twpi.whitelistSync.util.ConfigHandler;
+import pw.twpi.whitelistSync.util.WhitelistRead;
 
 /**
  * @author PotatoSauceVFX <rj@potatosaucevfx.com>
