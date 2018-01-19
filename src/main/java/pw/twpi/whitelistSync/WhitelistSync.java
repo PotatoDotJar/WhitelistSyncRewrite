@@ -17,6 +17,7 @@ package pw.twpi.whitelistSync;
 
 import java.io.File;
 import java.util.ArrayList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -31,6 +32,7 @@ import pw.twpi.whitelistSync.commands.CommandWhitelist;
 import pw.twpi.whitelistSync.service.BaseService;
 import pw.twpi.whitelistSync.service.MYSQLService;
 import pw.twpi.whitelistSync.service.SQLITEService;
+import pw.twpi.whitelistSync.service.WhitelistSyncThread;
 import pw.twpi.whitelistSync.util.ConfigErrorException;
 import pw.twpi.whitelistSync.util.ConfigHandler;
 import pw.twpi.whitelistSync.util.WhitelistRead;
@@ -74,6 +76,9 @@ public class WhitelistSync {
         logger.info("Loading Commands");
         event.registerServerCommand(new CommandWhitelist(service));
 
+        logger.info("Starting Sync Thread...");
+        startSyncThread(event.getServer());
+
         // Check if whitelisting is enabled.
         if (!event.getServer().getPlayerList().isWhiteListEnabled()) {
             logger.info("Oh no! I see whitelisting isn't enabled in the server properties. "
@@ -109,5 +114,10 @@ public class WhitelistSync {
         File directory = e.getModConfigurationDirectory();
         config = new Configuration(new File(directory.getPath(), MODID + ".cfg"));
         ConfigHandler.readConfig();
+    }
+
+    private void startSyncThread(MinecraftServer server) {
+        Thread sync = new Thread(new WhitelistSyncThread(server, service));
+        sync.start();
     }
 }
