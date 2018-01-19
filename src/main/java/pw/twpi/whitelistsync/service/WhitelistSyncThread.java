@@ -51,7 +51,7 @@ public class WhitelistSyncThread implements Runnable {
                 service.updateLocalFromDatabase(server);
 
                 try {
-                    Thread.sleep(ConfigHandler.sqliteServerSyncTimer * 1000);
+                    Thread.sleep(ConfigHandler.mysqlServerSyncTimer * 1000);
                 } catch (InterruptedException e) {
                 }
             }

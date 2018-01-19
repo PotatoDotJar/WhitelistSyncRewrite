@@ -16,7 +16,6 @@
 package pw.twpi.whitelistSync;
 
 import java.io.File;
-import java.util.ArrayList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -35,7 +34,6 @@ import pw.twpi.whitelistSync.service.SQLITEService;
 import pw.twpi.whitelistSync.service.WhitelistSyncThread;
 import pw.twpi.whitelistSync.util.ConfigErrorException;
 import pw.twpi.whitelistSync.util.ConfigHandler;
-import pw.twpi.whitelistSync.util.WhitelistRead;
 
 /**
  * @author PotatoSauceVFX <rj@potatosaucevfx.com>
@@ -44,7 +42,7 @@ import pw.twpi.whitelistSync.util.WhitelistRead;
 public class WhitelistSync {
 
     public static final String MODID = "whitelistsync";
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.0"; // Change gradle build config too!
     public static String SERVER_FILEPATH;
     public static Configuration config;
 
