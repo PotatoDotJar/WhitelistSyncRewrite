@@ -5,7 +5,7 @@ bin
 .metadata
 .classpath
 .project
-
+.nb-gradle/
 # idea
 out
 *.ipr
