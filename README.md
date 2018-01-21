@@ -29,6 +29,8 @@ Wait! This mod requires 2 dependencies!
 
 - sqlite-jdbc-3.19.3.jar
 
+- mysql-connector-java-8.0.8-dmr
+
 Place both of those files in your server mods folder!
 
  
