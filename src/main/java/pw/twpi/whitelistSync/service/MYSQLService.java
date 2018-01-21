@@ -37,7 +37,6 @@ public class MYSQLService implements BaseService {
 
     private Connection conn = null;
     private String S_SQL = "";
-    private Statement statement = null;
 
     private String url;
     private String username;
@@ -65,22 +64,24 @@ public class MYSQLService implements BaseService {
     private void loadDatabase() {
         // Create database
         try {
-            // Create statement
-            statement = conn.createStatement();
 
             // Create database
-            S_SQL = "CREATE DATABASE IF NOT EXISTS WhitelistSync;";
-            statement.execute(S_SQL);
+            S_SQL = "CREATE DATABASE IF NOT EXISTS " + ConfigHandler.mySQL_DBname + ";";
+
+            // Create statement
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(S_SQL);
+            stmt.execute();
 
             // Create table
-            S_SQL = "CREATE TABLE IF NOT EXISTS WhitelistSync.whitelist ("
+            S_SQL = "CREATE TABLE IF NOT EXISTS " + ConfigHandler.mySQL_DBname + ".whitelist ("
                     + "`uuid` VARCHAR(60) NOT NULL,"
                     + "`name` VARCHAR(20) NOT NULL,"
                     + "`whitelisted` TINYINT NOT NULL DEFAULT 1,"
                     + "PRIMARY KEY (`uuid`)"
                     + ")";
-            statement.execute(S_SQL);
-            statement.close();
+            PreparedStatement stmt2 = conn.prepareStatement(S_SQL);
+            stmt2.execute();
             WhitelistSync.logger.info("Loaded mySQL database!");
 
         } catch (SQLException e) {
@@ -112,7 +113,7 @@ public class MYSQLService implements BaseService {
                     for (int i = 0; i < uuids.size() || i < names.size(); i++) {
                         if ((uuids.get(i) != null) && (names.get(i) != null)) {
                             try {
-                                PreparedStatement sql = conn.prepareStatement("INSERT IGNORE INTO WhitelistSync.whitelist(uuid, name, whitelisted) VALUES (?, ?, 1)");
+                                PreparedStatement sql = conn.prepareStatement("INSERT IGNORE INTO " + ConfigHandler.mySQL_DBname + ".whitelist(uuid, name, whitelisted) VALUES (?, ?, 1)");
                                 sql.setString(1, uuids.get(i));
                                 sql.setString(2, names.get(i));
                                 sql.executeUpdate();
@@ -148,7 +149,7 @@ public class MYSQLService implements BaseService {
             Connection conn = getConnection();
             long startTime = System.currentTimeMillis();
 
-            String sql = "SELECT uuid, whitelisted FROM WhitelistSync.whitelist";
+            String sql = "SELECT uuid, whitelisted FROM " + ConfigHandler.mySQL_DBname + ".whitelist";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
@@ -184,7 +185,7 @@ public class MYSQLService implements BaseService {
             Connection conn = getConnection();
             long startTime = System.currentTimeMillis();
 
-            String sql = "SELECT name, whitelisted FROM WhitelistSync.whitelist";
+            String sql = "SELECT name, whitelisted FROM " + ConfigHandler.mySQL_DBname + ".whitelist";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
@@ -219,7 +220,7 @@ public class MYSQLService implements BaseService {
 
                     // Open connection
                     Connection conn = getConnection();
-                    String sql = "REPLACE INTO WhitelistSync.whitelist(uuid, name, whitelisted) VALUES (?, ?, 1)";
+                    String sql = "REPLACE INTO " + ConfigHandler.mySQL_DBname + ".whitelist(uuid, name, whitelisted) VALUES (?, ?, 1)";
 
                     PreparedStatement stmt = conn.prepareStatement(sql);
                     stmt.setString(1, String.valueOf(player.getId()));
@@ -252,7 +253,7 @@ public class MYSQLService implements BaseService {
 
                     // Open connection
                     Connection conn = getConnection();
-                    String sql = "REPLACE INTO WhitelistSync.whitelist(uuid, name, whitelisted) VALUES (?, ?, 0)";
+                    String sql = "REPLACE INTO " + ConfigHandler.mySQL_DBname + ".whitelist(uuid, name, whitelisted) VALUES (?, ?, 0)";
 
                     PreparedStatement stmt = conn.prepareStatement(sql);
                     stmt.setString(1, String.valueOf(player.getId()));
@@ -283,9 +284,8 @@ public class MYSQLService implements BaseService {
 
                 // Open connection
                 Connection conn = getConnection();
-                String sql = "SELECT name, uuid, whitelisted FROM WhitelistSync.whitelist";
+                String sql = "SELECT name, uuid, whitelisted FROM " + ConfigHandler.mySQL_DBname + ".whitelist";
                 PreparedStatement stmt = conn.prepareStatement(sql);
-
                 ResultSet rs = stmt.executeQuery();
                 ArrayList<String> localUuids = WhitelistRead.getWhitelistUUIDs();
                 while (rs.next()) {
