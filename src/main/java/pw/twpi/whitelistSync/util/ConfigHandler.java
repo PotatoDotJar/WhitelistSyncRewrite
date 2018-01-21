@@ -45,6 +45,7 @@ public class ConfigHandler {
 
     // mySQL config
     public static int mysqlServerSyncTimer = 60;
+    public static String mySQL_DBname = "WhitelistSync";
     public static String mySQL_IP = "localhost";
     public static String mySQL_PORT = "3306";
     public static String mySQL_Username = "root";
@@ -95,9 +96,11 @@ public class ConfigHandler {
         cfg.addCustomCategoryComment(MYSQL_CATEGORY, "mySQL configuration (To enable "
                 + "mySQL, refer to the mode setting in the general configuration).");
 
-        mysqlServerSyncTimer = sqliteServerSyncTimer = cfg.getInt("mySQL Sync Timer", MYSQL_CATEGORY,
+        mysqlServerSyncTimer = cfg.getInt("mySQL Sync Timer", MYSQL_CATEGORY,
                 mysqlServerSyncTimer, 1, 1000, "Time Interval in seconds for when the server polls "
                 + "the whitelist changes from the mySQL database. (Warning! Time lower than 5 sec may effect performace.)");
+
+        mySQL_DBname = cfg.getString("mySQL Database Name", MYSQL_CATEGORY, mySQL_DBname, "Name for your mySQL database (No spaces!).");
 
         mySQL_IP = cfg.getString("mySQL IP", MYSQL_CATEGORY, mySQL_IP,
                 "IP for your mySQL server (Example: localhost) Note: Do not add schema.");
