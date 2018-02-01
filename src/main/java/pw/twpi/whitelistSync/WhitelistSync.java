@@ -49,6 +49,7 @@ public class WhitelistSync {
     // Database Service
     BaseService service;
 
+    // TODO: Use ScheduleExecutorServices
     public static final Logger logger = LogManager.getLogger(MODID);
 
     @Mod.EventHandler
