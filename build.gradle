@@ -9,7 +9,11 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.1-1.12.2"
+plugins {
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
+
+version = "1.2-1.12.2"
 group = "pw.twpi.whitelistsync" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "whitelistsync"
 
@@ -21,7 +25,7 @@ compileJava {
 minecraft {
     // version = "1.10.2-12.18.3.2511" // 1.10.2
     // version = "1.11.2-13.20.1.2588" // 1.11.2
-    version = "1.12.2-14.23.1.2598" // 1.12.2
+    version = "1.12.2-14.23.4.2707" // 1.12.2
     runDir = "run"
 
 
@@ -32,6 +36,15 @@ minecraft {
 
 repositories {
     mavenCentral()
+
+    maven {
+        name "shadowfacts"
+        url "http://mvn.rx14.co.uk/shadowfacts"
+    }
+    flatDir {
+        dirs "libs"
+    }
+
 }
 
 dependencies {
@@ -42,6 +55,7 @@ dependencies {
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
     compile 'mysql:mysql-connector-java:8.0.8-dmr'
 }
+
 
 processResources {
     inputs.property "version", project.version

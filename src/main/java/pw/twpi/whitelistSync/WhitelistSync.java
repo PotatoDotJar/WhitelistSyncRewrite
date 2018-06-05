@@ -42,7 +42,7 @@ import pw.twpi.whitelistSync.util.ConfigHandler;
 public class WhitelistSync {
 
     public static final String MODID = "whitelistsync";
-    public static final String VERSION = "1.1-1.12.2"; // Change gradle build config too!
+    public static final String VERSION = "1.2-1.12.2"; // Change gradle build config too!
     public static String SERVER_FILEPATH;
     public static Configuration config;
 
@@ -68,6 +68,7 @@ public class WhitelistSync {
     @SideOnly(Side.SERVER)
     @Mod.EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
+        //SERVER_FILEPATH = event.getServer().getDataDirectory().getAbsolutePath();
         SERVER_FILEPATH = event.getServer().getDataDirectory().getAbsolutePath();
         logger.info("--------------------------------------------");
         logger.info("---------------WHITELIST SYNC---------------");
