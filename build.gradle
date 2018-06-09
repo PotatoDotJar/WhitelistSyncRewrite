@@ -5,12 +5,17 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
 
-plugins {
-    id "com.github.johnrengelman.shadow" version "1.2.3"
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+
+// Configure the shadow jar task
+shadowJar {
+
 }
 
 version = "1.2-1.12.2"
@@ -25,7 +30,7 @@ compileJava {
 minecraft {
     // version = "1.10.2-12.18.3.2511" // 1.10.2
     // version = "1.11.2-13.20.1.2588" // 1.11.2
-    version = "1.12.2-14.23.4.2707" // 1.12.2
+    version = "1.12.2-14.23.4.2705" // 1.12.2
     runDir = "run"
 
 
@@ -36,15 +41,6 @@ minecraft {
 
 repositories {
     mavenCentral()
-
-    maven {
-        name "shadowfacts"
-        url "http://mvn.rx14.co.uk/shadowfacts"
-    }
-    flatDir {
-        dirs "libs"
-    }
-
 }
 
 dependencies {
@@ -69,3 +65,7 @@ processResources {
         exclude 'mcmod.info'
     }
 }
+
+
+reobf { shadowJar { mappingType = "SEARGE" } }
+tasks.reobfShadowJar.mustRunAfter shadowJar
