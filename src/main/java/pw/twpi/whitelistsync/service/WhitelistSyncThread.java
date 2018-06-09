@@ -48,7 +48,11 @@ public class WhitelistSyncThread implements Runnable {
     public void run() {
         if (service.getClass().equals(MYSQLService.class)) {
             while (server.isServerRunning()) {
-                service.updateLocalFromDatabase(server);
+                service.updateLocalWhitelistFromDatabase(server);
+
+                if (ConfigHandler.SYNC_OP_LIST) {
+                    service.updateLocalOpListFromDatabase(server);
+                }
 
                 try {
                     Thread.sleep(ConfigHandler.mysqlServerSyncTimer * 1000);
@@ -59,7 +63,12 @@ public class WhitelistSyncThread implements Runnable {
 
             if (ConfigHandler.sqliteMode.equalsIgnoreCase("INTERVAL")) {
                 while (server.isServerRunning()) {
-                    service.updateLocalFromDatabase(server);
+                    service.updateLocalWhitelistFromDatabase(server);
+
+                    if (ConfigHandler.SYNC_OP_LIST) {
+                        service.updateLocalOpListFromDatabase(server);
+                    }
+
                     try {
                         Thread.sleep(ConfigHandler.sqliteServerSyncTimer * 1000);
                     } catch (InterruptedException e) {
@@ -107,7 +116,11 @@ public class WhitelistSyncThread implements Runnable {
                 // Test if whitelist is changed
                 if (event.context().toString().equalsIgnoreCase("whitelist.db")) {
                     WhitelistSync.logger.debug("Remote Database Updated... Syncing...");
-                    service.updateLocalFromDatabase(server);
+                    service.updateLocalWhitelistFromDatabase(server);
+
+                    if (ConfigHandler.SYNC_OP_LIST) {
+                        service.updateLocalOpListFromDatabase(server);
+                    }
                 }
             }
 

@@ -30,16 +30,31 @@ public interface BaseService {
     // Gets ArrayList of uuids whitelisted in database.
     public ArrayList<String> pullUuidsFromDatabase(MinecraftServer server);
 
+    // Gets ArrayList of uuids ops in database.
+    public ArrayList<String> pullOpUuidsFromDatabase(MinecraftServer server);
+
     // Gets ArrayList of names whitelisted in database.
     public ArrayList<String> pullNamesFromDatabase(MinecraftServer server);
+
+    // Gets ArrayList of names ops in database.
+    public ArrayList<String> pullOpNamesFromDatabase(MinecraftServer server);
 
     // Adds player to database.
     public void addPlayerToDatabase(GameProfile player);
 
+    // Adds op player to database.
+    public void addOpPlayerToDatabase(GameProfile player);
+
     // Removes player from database.
     public void removePlayerFromDatabase(GameProfile player);
 
+    // Removes op player from database.
+    public void removeOpPlayerFromDatabase(GameProfile player);
+
     // Copies whitelist from database to server.
-    public void updateLocalFromDatabase(MinecraftServer server);
+    public void updateLocalWhitelistFromDatabase(MinecraftServer server);
+
+    // Copies op list from database to server.
+    public void updateLocalOpListFromDatabase(MinecraftServer server);
 
 }

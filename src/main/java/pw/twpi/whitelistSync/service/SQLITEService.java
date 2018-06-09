@@ -19,6 +19,7 @@ import com.mojang.authlib.GameProfile;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -26,7 +27,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import pw.twpi.whitelistSync.WhitelistSync;
+import pw.twpi.whitelistSync.model.OpUser;
 import pw.twpi.whitelistSync.util.ConfigHandler;
+import pw.twpi.whitelistSync.util.OPlistRead;
 import pw.twpi.whitelistSync.util.WhitelistRead;
 
 /**
@@ -64,8 +67,20 @@ public class SQLITEService implements BaseService {
             Statement stmt = conn.createStatement();
             stmt.execute(sql);
 
+            if (ConfigHandler.SYNC_OP_LIST) {
+                // SQL statement for creating a new table
+                sql = "CREATE TABLE IF NOT EXISTS op (\n"
+                        + "	uuid text NOT NULL PRIMARY KEY,\n"
+                        + "	name text,\n"
+                        + "	level integer,\n"
+                        + "	bypassesPlayerLimit integer,\n"
+                        + " isOp integer NOT NULL);";
+                Statement stmt2 = conn.createStatement();
+                stmt2.execute(sql);
+            }
+
         } catch (SQLException e) {
-            WhitelistSync.logger.error("Error creating whitelist table!\n" + e.getMessage());
+            WhitelistSync.logger.error("Error creating op or whitelist table!\n" + e.getMessage());
             return false;
         } finally {
             try {
@@ -85,6 +100,8 @@ public class SQLITEService implements BaseService {
         // Load local whitelist to memory.
         ArrayList<String> uuids = WhitelistRead.getWhitelistUUIDs();
         ArrayList<String> names = WhitelistRead.getWhitelistNames();
+
+        ArrayList<OpUser> opUsers = OPlistRead.getOppedUsers();
 
         // Start job on thread to avoid lag.
         new Thread(new Runnable() {
@@ -112,8 +129,34 @@ public class SQLITEService implements BaseService {
                     long timeTaken = System.currentTimeMillis() - startTime;
 
                     WhitelistSync.logger.debug("Database Updated | Took " + timeTaken + "ms | Wrote " + records + " records.");
-
                     stmt.close();
+
+                    // If syncing op list
+                    if (ConfigHandler.SYNC_OP_LIST) {
+                        records = 0;
+                        long opStartTime = System.currentTimeMillis();
+
+                        // Loop through ops list and add to DB
+                        for (OpUser opUser : opUsers) {
+                            try {
+                                PreparedStatement sql = conn.prepareStatement("INSERT IGNORE INTO " + ConfigHandler.mySQL_DBname + ".op(uuid, name, level, bypassesPlayerLimit, isOp) VALUES (?, ?, ?, ?, true)");
+                                sql.setString(1, opUser.getUuid());
+                                sql.setString(2, opUser.getName());
+                                sql.setInt(3, opUser.getLevel());
+                                sql.setBoolean(4, opUser.isBypassesPlayerLimit());
+                                sql.executeUpdate();
+                                records++;
+                            } catch (ClassCastException e) {
+                                e.printStackTrace();
+                            }
+                            records++;
+                        }
+                        // Record time taken.
+                        long opTimeTaken = System.currentTimeMillis() - opStartTime;
+                        WhitelistSync.logger.info("Wrote " + records + " to op table in " + opTimeTaken + "ms.");
+                        WhitelistSync.logger.debug("Op Table Updated | Took " + opTimeTaken + "ms | Wrote " + records + " records.");
+                    }
+
                     conn.close();
                 } catch (SQLException e) {
                     WhitelistSync.logger.error("Failed to update database with local records.\n" + e.getMessage());
@@ -333,6 +376,31 @@ public class SQLITEService implements BaseService {
         } catch (SQLException e) {
             WhitelistSync.logger.error("Error creating non-existing database!\n" + e.getMessage());
         }
+    }
+
+    @Override
+    public ArrayList<String> pullOpNamesFromDatabase(MinecraftServer server) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addOpPlayerToDatabase(GameProfile player) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeOpPlayerFromDatabase(GameProfile player) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateLocalWhitelistFromDatabase(MinecraftServer server) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateLocalOpListFromDatabase(MinecraftServer server) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

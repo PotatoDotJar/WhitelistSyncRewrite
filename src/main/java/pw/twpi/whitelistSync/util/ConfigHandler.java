@@ -35,6 +35,7 @@ public class ConfigHandler {
 
     // General settings
     public static String WHITELIST_MODE = "SQLITE"; // SQLITE or MYSQL, use mode finals above.
+    public static boolean SYNC_OP_LIST = false; // Sync ops list.
 
     // sqlite config
     public static String sqliteDatabasePath = "./whitelist.db";
@@ -68,8 +69,10 @@ public class ConfigHandler {
     private static void initGeneralConfig(Configuration cfg) {
         // General Settings
         cfg.addCustomCategoryComment(CATEGORY_GENERAL, "General configuration");
-        WHITELIST_MODE = cfg.getString("Whitelist Sync Mode", CATEGORY_GENERAL, MODE_SQLITE,
+        WHITELIST_MODE = cfg.getString("Whitelist Sync Mode", CATEGORY_GENERAL, WHITELIST_MODE,
                 "Mode for the database. Options are [MYSQL or SQLITE].");
+
+        SYNC_OP_LIST = cfg.getBoolean("Sync OPs list to database", CATEGORY_GENERAL, SYNC_OP_LIST, "Option on wheather to sync the server's op list to the database.");
 
         // Sqlite settings
         cfg.addCustomCategoryComment(SQLITE_CATEGORY, "Sqlite configuration (To enable "
