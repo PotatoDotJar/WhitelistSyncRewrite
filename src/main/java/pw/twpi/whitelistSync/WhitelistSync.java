@@ -68,7 +68,7 @@ public class WhitelistSync {
     @SideOnly(Side.SERVER)
     @Mod.EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
-        //SERVER_FILEPATH = event.getServer().getDataDirectory().getAbsolutePath();
+        SERVER_FILEPATH = event.getServer().getDataDirectory().getAbsolutePath();
 
         File serverDir = event.getServer().getDataDirectory();
 

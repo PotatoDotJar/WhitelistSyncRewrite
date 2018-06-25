@@ -74,14 +74,22 @@ public class CommandWhitelist implements ICommand {
                 if (args.length > 0) {
                     //Action for showing list
                     if (args[0].equalsIgnoreCase("list")) {
-                        service.pullNamesFromDatabase(server).forEach(user -> sender.sendMessage(new TextComponentString(user.toString()))); // TODO: Format output in table and add feedback.
+                        service.pullNamesFromWhitelistDatabase(server).forEach(user -> sender.sendMessage(new TextComponentString(user.toString()))); // TODO: Format output in table and add feedback.
 
                     } // Actions for adding a player to whitelist
                     else if (args[0].equalsIgnoreCase("add")) {
                         if (args.length > 1) {
-                            server.getPlayerList().addWhitelistedPlayer(server.getPlayerProfileCache().getGameProfileForUsername(args[1]));
-                            service.addPlayerToDatabase(server.getPlayerProfileCache().getGameProfileForUsername(args[1]));
-                            sender.sendMessage(new TextComponentString(args[1] + " added to the whitelist."));
+
+                            // Check if user exists on mojang's side.
+                            GameProfile whitelistPlayer = server.getPlayerProfileCache().getGameProfileForUsername(args[1]);
+                            if (whitelistPlayer != null) {
+                                server.getPlayerList().addWhitelistedPlayer(whitelistPlayer);
+                                service.addPlayerToWhitelistDatabase(whitelistPlayer);
+                                sender.sendMessage(new TextComponentString(args[1] + " added to the whitelist."));
+                            } else {
+                                sender.sendMessage(new TextComponentString("User, " + args[1] + ", not found in mojang's database!"));
+                            }
+                            ;
                         } else {
                             sender.sendMessage(new TextComponentString("You must specify a name to add to the whitelist!"));
                         }
@@ -91,7 +99,7 @@ public class CommandWhitelist implements ICommand {
                             GameProfile gameprofile = server.getPlayerList().getWhitelistedPlayers().getByName(args[1]);
                             if (gameprofile != null) {
                                 server.getPlayerList().removePlayerFromWhitelist(gameprofile);
-                                service.removePlayerFromDatabase(gameprofile);
+                                service.removePlayerFromWhitelistDatabase(gameprofile);
                                 sender.sendMessage(new TextComponentString(args[1] + " removed from the whitelist."));
                             } else {
                                 sender.sendMessage(new TextComponentString("You must specify a valid name to remove from the whitelist!"));
@@ -102,10 +110,12 @@ public class CommandWhitelist implements ICommand {
                         ConfigHandler.readConfig();
                     } // Sync Database to server
                     else if (args[0].equalsIgnoreCase("sync")) {
-                        service.updateLocalFromDatabase(server); // TODO: Add feedback
+                        service.updateLocalWhitelistFromDatabase(server);
+                        sender.sendMessage(new TextComponentString("Loaded data from database to local whitelist."));
                     } // Sync server to database
                     else if (args[0].equalsIgnoreCase("copyservertodatabase")) {
-                        service.pushLocalToDatabase(server); // TODO: Add feedback
+                        service.pushLocalWhitelistToDatabase(server);
+                        sender.sendMessage(new TextComponentString("Pushed local whitelist data to database."));
                     }
                 } else {
                     sender.sendMessage(new TextComponentString("/wl <list|add|remove|sync|copyServerToDatabase>"));

@@ -21,7 +21,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
@@ -43,14 +42,14 @@ public class MYSQLService implements BaseService {
     private String password;
 
     public MYSQLService() {
-        this.url = "jdbc:mysql://" + ConfigHandler.mySQL_IP + ":" + ConfigHandler.mySQL_PORT + "/";
+        this.url = "jdbc:mysql://" + ConfigHandler.mySQL_IP + ":" + ConfigHandler.mySQL_PORT + "/?autoReconnect=true&interactiveClient=true";
         this.username = ConfigHandler.mySQL_Username;
         this.password = ConfigHandler.mySQL_Password;
 
         try {
             conn = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            WhitelistSync.logger.error("Failed to connect to the mySQL database! Did you set one up in the config?\n" + e.getMessage());
+            WhitelistSync.logger.error("\n\nFailed to connect to the mySQL database! Did you set one up in the config?\n" + e.getMessage() + "\n\n");
             throw new MYsqlBDError("Failed to connect to the mySQL database! Did you set one up in the config?\n" + e.getMessage());
         }
 
@@ -92,7 +91,7 @@ public class MYSQLService implements BaseService {
     }
 
     @Override
-    public void pushLocalToDatabase(MinecraftServer server) {
+    public void pushLocalWhitelistToDatabase(MinecraftServer server) {
         // Load local whitelist to memory.
         ArrayList<String> uuids = WhitelistRead.getWhitelistUUIDs();
         ArrayList<String> names = WhitelistRead.getWhitelistNames();
@@ -130,14 +129,14 @@ public class MYSQLService implements BaseService {
                     WhitelistSync.logger.info("Wrote " + records + " to database in " + timeTaken + "ms.");
                     WhitelistSync.logger.debug("Database Updated | Took " + timeTaken + "ms | Wrote " + records + " records.");
                 } catch (SQLException e) {
-                    WhitelistSync.logger.error("Failed to update database with local records.\n" + e.getMessage());
+                    WhitelistSync.logger.error("Failed to update database with local records.. :(" + e.getLocalizedMessage());
                 }
             }
         }).start();
     }
 
     @Override
-    public ArrayList<String> pullUuidsFromDatabase(MinecraftServer server) {
+    public ArrayList<String> pullUuidsFromWhitelistDatabase(MinecraftServer server) {
         // ArrayList for uuids.
         ArrayList<String> uuids = new ArrayList<String>();
 
@@ -166,13 +165,13 @@ public class MYSQLService implements BaseService {
 
             WhitelistSync.logger.debug("Database Pulled | Took " + timeTaken + "ms | Read " + records + " records.");
         } catch (SQLException e) {
-            WhitelistSync.logger.error("Error querrying uuids from database!\n" + e.getMessage());
+            WhitelistSync.logger.error("Error querrying uuids from database! :(" + e.getLocalizedMessage());
         }
         return uuids;
     }
 
     @Override
-    public ArrayList<String> pullNamesFromDatabase(MinecraftServer server) {
+    public ArrayList<String> pullNamesFromWhitelistDatabase(MinecraftServer server) {
         // ArrayList for names.
         ArrayList<String> names = new ArrayList<String>();
 
@@ -202,14 +201,14 @@ public class MYSQLService implements BaseService {
 
             WhitelistSync.logger.debug("Database Pulled | Took " + timeTaken + "ms | Read " + records + " records.");
         } catch (SQLException e) {
-            WhitelistSync.logger.error("Error querrying names from database!\n" + e.getMessage());
+            WhitelistSync.logger.error("Error querrying names from database! :(" + e.getLocalizedMessage());
         }
         return names;
     }
 
     // TODO: Add boolean feedback.
     @Override
-    public void addPlayerToDatabase(GameProfile player) {
+    public void addPlayerToWhitelistDatabase(GameProfile player) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -234,7 +233,7 @@ public class MYSQLService implements BaseService {
 
                     WhitelistSync.logger.debug("Database Added " + player.getName() + " | Took " + timeTaken + "ms");
                 } catch (SQLException e) {
-                    WhitelistSync.logger.error("Error adding " + player.getName() + " to database!\n" + e.getMessage());
+                    WhitelistSync.logger.error("Error adding " + player.getName() + " to database! :(" + e.getLocalizedMessage());
                 }
             }
         }).start();
@@ -242,7 +241,7 @@ public class MYSQLService implements BaseService {
 
     // TODO: Add boolean feedback.
     @Override
-    public void removePlayerFromDatabase(GameProfile player) {
+    public void removePlayerFromWhitelistDatabase(GameProfile player) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -267,14 +266,14 @@ public class MYSQLService implements BaseService {
 
                     WhitelistSync.logger.debug("Database Removed " + player.getName() + " | Took " + timeTaken + "ms");
                 } catch (SQLException e) {
-                    WhitelistSync.logger.error("Error removing " + player.getName() + " to database!\n" + e.getMessage());
+                    WhitelistSync.logger.error("Error removing " + player.getName() + " to database! :(" + e.getLocalizedMessage());
                 }
             }
         }).start();
     }
 
     @Override
-    public void updateLocalFromDatabase(MinecraftServer server) {
+    public void updateLocalWhitelistFromDatabase(MinecraftServer server) {
         new Thread(() -> {
             try {
                 int records = 0;
@@ -303,7 +302,6 @@ public class MYSQLService implements BaseService {
                             }
                         }
                     } else {
-                        WhitelistSync.logger.debug(uuid + " is NOT whitelisted.");
                         if (localUuids.contains(uuid)) {
                             server.getPlayerList().removePlayerFromWhitelist(player);
                             WhitelistSync.logger.debug("Removed player " + name);
@@ -315,7 +313,7 @@ public class MYSQLService implements BaseService {
                 WhitelistSync.logger.debug("Database Pulled | Took " + timeTaken + "ms | Wrote " + records + " records.");
                 WhitelistSync.logger.debug("Local whitelist.json up to date!");
             } catch (SQLException e) {
-                WhitelistSync.logger.error("Error querying whitelisted players from database!\n" + e.getMessage());
+                WhitelistSync.logger.error("Error querying whitelisted players from database! :(" + e.getLocalizedMessage());
             }
         }).start();
     }

@@ -81,7 +81,7 @@ public class SQLITEService implements BaseService {
     }
 
     @Override
-    public void pushLocalToDatabase(MinecraftServer server) {
+    public void pushLocalWhitelistToDatabase(MinecraftServer server) {
         // Load local whitelist to memory.
         ArrayList<String> uuids = WhitelistRead.getWhitelistUUIDs();
         ArrayList<String> names = WhitelistRead.getWhitelistNames();
@@ -123,7 +123,7 @@ public class SQLITEService implements BaseService {
     }
 
     @Override
-    public ArrayList<String> pullUuidsFromDatabase(MinecraftServer server) {
+    public ArrayList<String> pullUuidsFromWhitelistDatabase(MinecraftServer server) {
         // ArrayList for uuids.
         ArrayList<String> uuids = new ArrayList<String>();
 
@@ -165,7 +165,7 @@ public class SQLITEService implements BaseService {
     }
 
     @Override
-    public ArrayList<String> pullNamesFromDatabase(MinecraftServer server) {
+    public ArrayList<String> pullNamesFromWhitelistDatabase(MinecraftServer server) {
         // ArrayList for names.
         ArrayList<String> names = new ArrayList<String>();
 
@@ -208,7 +208,7 @@ public class SQLITEService implements BaseService {
     }
 
     @Override
-    public void addPlayerToDatabase(GameProfile player) {
+    public void addPlayerToWhitelistDatabase(GameProfile player) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -239,7 +239,7 @@ public class SQLITEService implements BaseService {
     }
 
     @Override
-    public void removePlayerFromDatabase(GameProfile player) {
+    public void removePlayerFromWhitelistDatabase(GameProfile player) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -270,7 +270,7 @@ public class SQLITEService implements BaseService {
     }
 
     @Override
-    public void updateLocalFromDatabase(MinecraftServer server) {
+    public void updateLocalWhitelistFromDatabase(MinecraftServer server) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -301,7 +301,6 @@ public class SQLITEService implements BaseService {
                                 }
                             }
                         } else {
-                            WhitelistSync.logger.info(uuid + " is NOT whitelisted.");
                             if (localUuids.contains(uuid)) {
                                 server.getPlayerList().removePlayerFromWhitelist(player);
                                 WhitelistSync.logger.info("Removed player " + name);

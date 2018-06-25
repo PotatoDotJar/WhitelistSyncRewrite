@@ -25,21 +25,21 @@ import net.minecraft.server.MinecraftServer;
 public interface BaseService {
 
     // Merges database with local whitelist.
-    public void pushLocalToDatabase(MinecraftServer server);
+    public void pushLocalWhitelistToDatabase(MinecraftServer server);
 
     // Gets ArrayList of uuids whitelisted in database.
-    public ArrayList<String> pullUuidsFromDatabase(MinecraftServer server);
+    public ArrayList<String> pullUuidsFromWhitelistDatabase(MinecraftServer server);
 
     // Gets ArrayList of names whitelisted in database.
-    public ArrayList<String> pullNamesFromDatabase(MinecraftServer server);
+    public ArrayList<String> pullNamesFromWhitelistDatabase(MinecraftServer server);
 
     // Adds player to database.
-    public void addPlayerToDatabase(GameProfile player);
+    public void addPlayerToWhitelistDatabase(GameProfile player);
 
     // Removes player from database.
-    public void removePlayerFromDatabase(GameProfile player);
+    public void removePlayerFromWhitelistDatabase(GameProfile player);
 
     // Copies whitelist from database to server.
-    public void updateLocalFromDatabase(MinecraftServer server);
+    public void updateLocalWhitelistFromDatabase(MinecraftServer server);
 
 }
